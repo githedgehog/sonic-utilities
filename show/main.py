@@ -16,6 +16,7 @@ from utilities_common import util_base
 from utilities_common.db import Db
 import utilities_common.constants as constants
 from utilities_common.general import load_db_config
+from utilities_common.helper import get_exclude_cfg_list
 
 # mock the redis for unit test purposes #
 try:
@@ -154,6 +155,8 @@ def is_gearbox_configured():
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help', '-?'])
 
+exclude_cli_list = get_exclude_cfg_list()
+
 #
 # 'cli' group (root group)
 #
@@ -182,7 +185,11 @@ cli.add_command(interfaces.interfaces)
 cli.add_command(kdump.kdump)
 cli.add_command(kube.kubernetes)
 cli.add_command(muxcable.muxcable)
-cli.add_command(nat.nat)
+
+if 'INCLUDE_NAT: n' not in exclude_cli_list:
+    #add nat commands
+    cli.add_command(nat.nat)
+
 cli.add_command(platform.platform)
 cli.add_command(processes.processes)
 cli.add_command(reboot_cause.reboot_cause)
