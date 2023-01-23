@@ -1,3 +1,4 @@
+import os
 from dump.match_infra import MatchEngine, MatchRequest, ConnectionPool
 from dump.match_helper import get_matched_keys
 from .db import Db
@@ -64,3 +65,14 @@ def get_port_pbh_binding(db_wrap, port, ns):
     ret = m_engine.fetch(req)
     pbh_tables, _ = get_matched_keys(ret)
     return pbh_tables
+
+def get_exclude_cfg_list():
+    """ Returns a list with the disabled config options
+        the corresponding CLI should be excluded.
+    """
+    cur_file_path = os.path.dirname(os.path.abspath(__file__))
+    exclude_cli_path = os.path.join(cur_file_path, '../', 'exclude-cfg', 'exclude-cfg.yaml')
+    with open(exclude_cli_path) as exclude_cli_file:
+        exclude_cli_list = [line.rstrip() for line in exclude_cli_file]
+
+    return exclude_cli_list
