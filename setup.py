@@ -19,6 +19,7 @@ setup(
     url='https://github.com/Azure/sonic-utilities',
     maintainer='Joe LeVeque',
     maintainer_email='jolevequ@microsoft.com',
+    include_package_data=True,
     packages=[
         'acl_loader',
         'clear',
@@ -61,6 +62,7 @@ setup(
         'utilities_common',
         'watchdogutil',
         'sonic_cli_gen',
+        'exclude-cfg',
     ],
     package_data={
         'generic_config_updater': ['generic_config_updater.conf.json'],

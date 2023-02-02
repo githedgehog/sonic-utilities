@@ -29,6 +29,7 @@ from utilities_common.intf_filter import parse_interface_in_filter
 from utilities_common import bgp_util
 import utilities_common.cli as clicommon
 from utilities_common.general import load_db_config, load_module_from_source
+from utilities_common.helper import get_exclude_cfg_list
 
 from .utils import log
 
@@ -1131,6 +1132,7 @@ def config(ctx):
 
     ctx.obj = Db()
 
+exclude_cli_list = get_exclude_cfg_list()
 
 # Add groups from other modules
 config.add_command(aaa.aaa)
@@ -1143,7 +1145,11 @@ config.add_command(flow_counters.flowcnt_route)
 config.add_command(kdump.kdump)
 config.add_command(kube.kubernetes)
 config.add_command(muxcable.muxcable)
-config.add_command(nat.nat)
+
+if 'INCLUDE_NAT: n' not in exclude_cli_list:
+    #add nat commands
+    config.add_command(nat.nat)
+
 config.add_command(vlan.vlan)
 config.add_command(vxlan.vxlan)
 

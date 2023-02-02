@@ -11,7 +11,7 @@ from utilities_common import util_base
 from show.plugins.pbh import read_pbh_counters
 from config.plugins.pbh import serialize_pbh_counters
 from . import plugins
-
+from utilities_common.helper import get_exclude_cfg_list
 
 # This is from the aliases example:
 # https://github.com/pallets/click/blob/57c6f09611fc47ca80db0bd010f05998b3c0aa95/examples/aliases/aliases.py
@@ -116,6 +116,7 @@ def run_command(command, pager=False, return_output=False, return_exitstatus=Fal
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help', '-?'])
 
+exclude_cli_list = get_exclude_cfg_list()
 
 #
 # 'cli' group (root group) ###
@@ -433,30 +434,11 @@ def line(target, devicename):
     click.echo(output)
     sys.exit(exitstatus)
 
-#
-# 'nat' group ("clear nat ...")
-#
-
-@cli.group(cls=AliasedGroup)
-def nat():
-    """Clear the nat info"""
-    pass
-
-# 'statistics' subcommand ("clear nat statistics")
-@nat.command()
-def statistics():
-    """ Clear all NAT statistics """
-
-    cmd = "natclear -s"
-    run_command(cmd)
-
-# 'translations' subcommand ("clear nat translations")
-@nat.command()
-def translations():
-    """ Clear all NAT translations """
-
-    cmd = "natclear -t"
-    run_command(cmd)
+if 'INCLUDE_NAT: n' not in exclude_cli_list:
+    #add nat commands ("clear nat statistics", "clear nat translations")
+    from . import nat
+    cli.add_command(nat.statistics)
+    cli.add_command(nat.translations)
 
 # 'pbh' group ("clear pbh ...")
 @cli.group(cls=AliasedGroup)
