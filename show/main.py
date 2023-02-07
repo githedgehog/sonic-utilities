@@ -62,6 +62,7 @@ from . import vxlan
 from . import system_health
 from . import warm_restart
 from . import plugins
+from . import radius
 
 # Global Variables
 PLATFORM_JSON = 'platform.json'
@@ -209,6 +210,8 @@ cli.add_command(vnet.vnet)
 cli.add_command(vxlan.vxlan)
 cli.add_command(system_health.system_health)
 cli.add_command(warm_restart.warm_restart)
+if 'INCLUDE_RADIUS: n' not in exclude_cli_list:
+    cli.add_command(radius.radius)
 
 # Add greabox commands only if GEARBOX is configured
 if is_gearbox_configured():
@@ -1679,58 +1682,6 @@ def tacacs():
             output += ('\nTACPLUS_SERVER address %s\n' % row)
             for key in entry:
                 output += ('               %s %s\n' % (key, str(entry[key])))
-    click.echo(output)
-
-@cli.command()
-@clicommon.pass_db
-def radius(db):
-    """Show RADIUS configuration"""
-    output = ''
-    config_db = db.cfgdb
-    data = config_db.get_table('RADIUS')
-
-    radius = {
-        'global': {
-            'auth_type': 'pap (default)',
-            'retransmit': '3 (default)',
-            'timeout': '5 (default)',
-            'passkey': '<EMPTY_STRING> (default)'
-        }
-    }
-    if 'global' in data:
-        radius['global'].update(data['global'])
-    for key in radius['global']:
-        output += ('RADIUS global %s %s\n' % (str(key), str(radius['global'][key])))
-
-    data = config_db.get_table('RADIUS_SERVER')
-    if data != {}:
-        for row in data:
-            entry = data[row]
-            output += ('\nRADIUS_SERVER address %s\n' % row)
-            for key in entry:
-                output += ('               %s %s\n' % (key, str(entry[key])))
-
-    counters_db = SonicV2Connector(host='127.0.0.1')
-    counters_db.connect(counters_db.COUNTERS_DB, retry_on=False)
-
-    if radius['global'].get('statistics', False) and (data != {}):
-        for row in data:
-            exists = counters_db.exists(counters_db.COUNTERS_DB,
-                                     'RADIUS_SERVER_STATS:{}'.format(row))
-            if not exists:
-                continue
-
-            counter_entry = counters_db.get_all(counters_db.COUNTERS_DB,
-                    'RADIUS_SERVER_STATS:{}'.format(row))
-            output += ('\nStatistics for RADIUS_SERVER address %s\n' % row)
-            for key in counter_entry:
-                if counter_entry[key] != "0":
-                    output += ('               %s %s\n' % (key, str(counter_entry[key])))
-    try:
-        counters_db.close(counters_db.COUNTERS_DB)
-    except Exception as e:
-        pass
-
     click.echo(output)
 
 #
