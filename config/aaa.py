@@ -2,11 +2,18 @@ import click
 import ipaddress
 import re
 from swsscommon.swsscommon import ConfigDBConnector
+from utilities_common.helper import get_exclude_cfg_list
 import utilities_common.cli as clicommon
 
 RADIUS_MAXSERVERS = 8
 RADIUS_PASSKEY_MAX_LEN = 65
 VALID_CHARS_MSG = "Valid chars are ASCII printable except SPACE, '#', and ','"
+
+exclude_cli_list = get_exclude_cfg_list()
+
+AUTH_PROTOCOLS = ["tacacs+", "local", "default"]
+if 'INCLUDE_RADIUS: n' not in exclude_cli_list:
+    AUTH_PROTOCOLS.append("radius")
 
 def is_secret(secret):
     return bool(re.match('^' + '[^ #,]*' + '$', secret))
@@ -102,7 +109,7 @@ authentication.add_command(trace)
 
 
 @click.command()
-@click.argument('auth_protocol', nargs=-1, type=click.Choice(["radius", "tacacs+", "local", "default"]))
+@click.argument('auth_protocol', nargs=-1, type=click.Choice(AUTH_PROTOCOLS))
 def login(auth_protocol):
     """Switch login authentication [ {radius, tacacs+, local} | default ]"""
     if len(auth_protocol) is 0:

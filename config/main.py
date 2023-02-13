@@ -1137,7 +1137,6 @@ exclude_cli_list = get_exclude_cfg_list()
 # Add groups from other modules
 config.add_command(aaa.aaa)
 config.add_command(aaa.tacacs)
-config.add_command(aaa.radius)
 config.add_command(chassis_modules.chassis)
 config.add_command(console.console)
 config.add_command(feature.feature)
@@ -1149,6 +1148,10 @@ config.add_command(muxcable.muxcable)
 if 'INCLUDE_NAT: n' not in exclude_cli_list:
     #add nat commands
     config.add_command(nat.nat)
+
+if 'INCLUDE_RADIUS: n' not in exclude_cli_list:
+    #add radius commands
+    config.add_command(aaa.radius)
 
 config.add_command(vlan.vlan)
 config.add_command(vxlan.vxlan)
