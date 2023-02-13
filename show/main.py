@@ -62,7 +62,6 @@ from . import vxlan
 from . import system_health
 from . import warm_restart
 from . import plugins
-from . import radius
 
 # Global Variables
 PLATFORM_JSON = 'platform.json'
@@ -210,7 +209,11 @@ cli.add_command(vnet.vnet)
 cli.add_command(vxlan.vxlan)
 cli.add_command(system_health.system_health)
 cli.add_command(warm_restart.warm_restart)
-cli.add_command(radius.radius)
+
+if 'INCLUDE_RADIUS: n' not in exclude_cli_list:
+    #add radius commands
+    from . import radius
+    cli.add_command(radius.radius)
 
 # Add greabox commands only if GEARBOX is configured
 if is_gearbox_configured():
