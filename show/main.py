@@ -161,6 +161,27 @@ def is_gearbox_configured():
     else:
         return False
 
+def is_mgmt_vrf_enabled(ctx):
+    """Check if management VRF is enabled"""
+    if ctx.invoked_subcommand is None:
+        cmd = 'sonic-cfggen -d --var-json "MGMT_VRF_CONFIG"'
+
+        p = subprocess.Popen(cmd, shell=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try :
+            mvrf_dict = json.loads(p.stdout.read())
+        except ValueError:
+            print("MGMT_VRF_CONFIG is not present.")
+            return False
+
+        # if the mgmtVrfEnabled attribute is configured, check the value
+        # and return True accordingly.
+        if 'mgmtVrfEnabled' in mvrf_dict['vrf_global']:
+            if (mvrf_dict['vrf_global']['mgmtVrfEnabled'] == "true"):
+                #ManagementVRF is enabled. Return True.
+                return True
+
+    return False
+
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help', '-?'])
 
 exclude_cli_list = get_exclude_cfg_list()
@@ -209,6 +230,8 @@ cli.add_command(vnet.vnet)
 cli.add_command(vxlan.vxlan)
 cli.add_command(system_health.system_health)
 cli.add_command(warm_restart.warm_restart)
+from . import ntp
+cli.add_command(ntp.ntp)
 
 if 'INCLUDE_SNMP: n' not in exclude_cli_list:
     #add snmp command
@@ -312,27 +335,6 @@ def ndp(ip6address, iface, verbose):
         cmd += " -if {}".format(iface)
 
     run_command(cmd, display_cmd=verbose)
-
-def is_mgmt_vrf_enabled(ctx):
-    """Check if management VRF is enabled"""
-    if ctx.invoked_subcommand is None:
-        cmd = 'sonic-cfggen -d --var-json "MGMT_VRF_CONFIG"'
-
-        p = subprocess.Popen(cmd, shell=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        try :
-            mvrf_dict = json.loads(p.stdout.read())
-        except ValueError:
-            print("MGMT_VRF_CONFIG is not present.")
-            return False
-
-        # if the mgmtVrfEnabled attribute is configured, check the value
-        # and return True accordingly.
-        if 'mgmtVrfEnabled' in mvrf_dict['vrf_global']:
-            if (mvrf_dict['vrf_global']['mgmtVrfEnabled'] == "true"):
-                #ManagementVRF is enabled. Return True.
-                return True
-
-    return False
 
 #
 # 'mgmt-vrf' group ("show mgmt-vrf ...")
@@ -1203,6 +1205,8 @@ def runningconfiguration():
     """Show current running configuration information"""
     pass
 
+# Add groups from other modules
+runningconfiguration.add_command(ntp.run_cfg_ntp)
 
 # Add groups from other modules
 if 'INCLUDE_SNMP: n' not in exclude_cli_list:
@@ -1282,23 +1286,6 @@ def interfaces(interfacename, verbose):
     run_command(cmd, display_cmd=verbose)
 
 
-# 'ntp' subcommand ("show runningconfiguration ntp")
-@runningconfiguration.command()
-@click.option('--verbose', is_flag=True, help="Enable verbose output")
-def ntp(verbose):
-    """Show NTP running configuration"""
-    ntp_servers = []
-    ntp_dict = {}
-    with open("/etc/ntp.conf") as ntp_file:
-        data = ntp_file.readlines()
-    for line in data:
-        if line.startswith("server "):
-            ntp_server = line.split(" ")[1]
-            ntp_servers.append(ntp_server)
-    ntp_dict['NTP Servers'] = ntp_servers
-    print(tabulate(ntp_dict, headers=list(ntp_dict.keys()), tablefmt="simple", stralign='left', missingval=""))
-
-
 # 'syslog' subcommand ("show runningconfiguration syslog")
 @runningconfiguration.command()
 @click.option('--verbose', is_flag=True, help="Enable verbose output")
@@ -1361,31 +1348,6 @@ def bgp(verbose):
     else:
         click.echo("Unidentified routing-stack")
 
-#
-# 'ntp' command ("show ntp")
-#
-
-@cli.command()
-@click.pass_context
-@click.option('--verbose', is_flag=True, help="Enable verbose output")
-def ntp(ctx, verbose):
-    """Show NTP information"""
-    from pkg_resources import parse_version
-    ntpstat_cmd = "ntpstat"
-    ntpcmd = "ntpq -p -n"
-    if is_mgmt_vrf_enabled(ctx) is True:
-        #ManagementVRF is enabled. Call ntpq using "ip vrf exec" or cgexec based on linux version
-        os_info =  os.uname()
-        release = os_info[2].split('-')
-        if parse_version(release[0]) > parse_version("4.9.0"):
-            ntpstat_cmd = "sudo ip vrf exec mgmt ntpstat"
-            ntpcmd = "sudo ip vrf exec mgmt ntpq -p -n"
-        else:
-            ntpstat_cmd = "sudo cgexec -g l3mdev:mgmt ntpstat"
-            ntpcmd = "sudo cgexec -g l3mdev:mgmt ntpq -p -n"
-
-    run_command(ntpstat_cmd, display_cmd=verbose)
-    run_command(ntpcmd, display_cmd=verbose)
 
 #
 # 'uptime' command ("show uptime")
