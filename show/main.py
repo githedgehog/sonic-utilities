@@ -230,8 +230,11 @@ cli.add_command(vnet.vnet)
 cli.add_command(vxlan.vxlan)
 cli.add_command(system_health.system_health)
 cli.add_command(warm_restart.warm_restart)
-from . import ntp
-cli.add_command(ntp.ntp)
+
+if 'INCLUDE_NTP: n' not in exclude_cli_list:
+    #add ntp commands
+    from . import ntp
+    cli.add_command(ntp.ntp)
 
 if 'INCLUDE_SNMP: n' not in exclude_cli_list:
     #add snmp command
@@ -1205,13 +1208,15 @@ def runningconfiguration():
     """Show current running configuration information"""
     pass
 
-# Add groups from other modules
-runningconfiguration.add_command(ntp.run_cfg_ntp)
 
 # Add groups from other modules
 if 'INCLUDE_SNMP: n' not in exclude_cli_list:
     #add snmp commands
     runningconfiguration.add_command(snmp.snmp)
+
+if 'INCLUDE_NTP: n' not in exclude_cli_list:
+    #add ntp runningconfiguration commands
+    runningconfiguration.add_command(ntp.run_cfg_ntp)
 
 
 # 'all' subcommand ("show runningconfiguration all")

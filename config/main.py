@@ -46,7 +46,6 @@ from . import vxlan
 from . import plugins
 from .config_mgmt import ConfigMgmtDPB, ConfigMgmt
 from . import mclag
-from . import ntp
 
 # mock masic APIs for unit test
 try:
@@ -1144,7 +1143,11 @@ config.add_command(flow_counters.flowcnt_route)
 config.add_command(kdump.kdump)
 config.add_command(kube.kubernetes)
 config.add_command(muxcable.muxcable)
-config.add_command(ntp.ntp)
+
+if 'INCLUDE_NTP: n' not in exclude_cli_list:
+    #add ntp commands
+    from . import ntp
+    config.add_command(ntp.ntp)
 
 if 'INCLUDE_NAT: n' not in exclude_cli_list:
     #add nat commands
