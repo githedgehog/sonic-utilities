@@ -62,7 +62,6 @@ from . import vxlan
 from . import system_health
 from . import warm_restart
 from . import plugins
-from . import snmp
 
 # Global Variables
 PLATFORM_JSON = 'platform.json'
@@ -211,9 +210,11 @@ cli.add_command(vxlan.vxlan)
 cli.add_command(system_health.system_health)
 cli.add_command(warm_restart.warm_restart)
 
-#add snmp command
-cli.add_command(snmp.snmptrap)
-cli.add_command(snmp.snmpagentaddress)
+if 'INCLUDE_SNMP: n' not in exclude_cli_list:
+    #add snmp command
+    from . import snmp
+    cli.add_command(snmp.snmptrap)
+    cli.add_command(snmp.snmpagentaddress)
 
 if 'INCLUDE_RADIUS: n' not in exclude_cli_list:
     #add radius commands
@@ -1204,7 +1205,9 @@ def runningconfiguration():
 
 
 # Add groups from other modules
-runningconfiguration.add_command(snmp.snmp)
+if 'INCLUDE_SNMP: n' not in exclude_cli_list:
+    #add snmp commands
+    runningconfiguration.add_command(snmp.snmp)
 
 
 # 'all' subcommand ("show runningconfiguration all")

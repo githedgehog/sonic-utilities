@@ -46,7 +46,6 @@ from . import vxlan
 from . import plugins
 from .config_mgmt import ConfigMgmtDPB, ConfigMgmt
 from . import mclag
-from . import snmp
 
 # mock masic APIs for unit test
 try:
@@ -1161,10 +1160,12 @@ config.add_command(mclag.mclag)
 config.add_command(mclag.mclag_member)
 config.add_command(mclag.mclag_unique_ip)
 
-#add snmp commands
-config.add_command(snmp.snmp)
-config.add_command(snmp.snmptrap)
-config.add_command(snmp.snmpagentaddress)
+if 'INCLUDE_SNMP: n' not in exclude_cli_list:
+    #add snmp commands
+    from . import snmp
+    config.add_command(snmp.snmp)
+    config.add_command(snmp.snmptrap)
+    config.add_command(snmp.snmpagentaddress)
 
 @config.command()
 @click.option('-y', '--yes', is_flag=True, callback=_abort_if_false,
