@@ -12,6 +12,7 @@ import pytest
 from unittest import mock
 from unittest.mock import patch
 from utilities_common.db import Db
+from config.snmp import is_valid_email
 
 tabular_data_show_run_snmp_contact_expected = """\
 Contact    Contact Email\n---------  --------------------\ntestuser   testuser@contoso.com
@@ -862,7 +863,7 @@ class TestSNMPConfigCommands(object):
     @pytest.mark.parametrize("invalid_email", ['test@contoso', 'test.contoso.com', 'testcontoso@com', 
                                                '123_%contoso.com', 'mytest@contoso.comm'])
     def test_is_valid_email(self, invalid_email):
-        output = config.is_valid_email(invalid_email)
+        output = is_valid_email(invalid_email)
         assert output == False
 
     @classmethod
