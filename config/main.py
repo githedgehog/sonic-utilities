@@ -2833,12 +2833,16 @@ def mvrf_restart_services():
     NTP service should also be restarted to rerun the NTP service with or
     without "cgexec" accordingly.
     """
-    cmd="service ntp stop"
-    os.system (cmd)
+    if 'INCLUDE_NTP: n' not in exclude_cli_list:
+        cmd="service ntp stop"
+        os.system (cmd)
+
     cmd="systemctl restart interfaces-config"
     os.system (cmd)
-    cmd="service ntp start"
-    os.system (cmd)
+
+    if 'INCLUDE_NTP: n' not in exclude_cli_list:
+        cmd="service ntp start"
+        os.system (cmd)
 
 def vrf_add_management_vrf(config_db):
     """Enable management vrf in config DB"""
@@ -3454,8 +3458,10 @@ def mgmt_ip_restart_services():
     """
     cmd="systemctl restart interfaces-config"
     os.system (cmd)
-    cmd="systemctl restart ntp-config"
-    os.system (cmd)
+
+    if 'INCLUDE_NTP: n' not in exclude_cli_list:
+        cmd="systemctl restart ntp-config"
+        os.system (cmd)
 
 #
 # 'mtu' subcommand
