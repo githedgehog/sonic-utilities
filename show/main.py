@@ -51,6 +51,7 @@ from . import interfaces
 from . import kdump
 from . import kube
 from . import muxcable
+from . import nat
 from . import platform
 from . import processes
 from . import reboot_cause
@@ -218,7 +219,6 @@ cli.add_command(muxcable.muxcable)
 
 if 'INCLUDE_NAT: n' not in exclude_cli_list:
     #add nat commands
-    from . import nat
     cli.add_command(nat.nat)
 
 cli.add_command(platform.platform)
