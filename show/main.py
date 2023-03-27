@@ -51,7 +51,6 @@ from . import interfaces
 from . import kdump
 from . import kube
 from . import muxcable
-from . import nat
 from . import platform
 from . import processes
 from . import reboot_cause
@@ -219,6 +218,7 @@ cli.add_command(muxcable.muxcable)
 
 if 'INCLUDE_NAT: n' not in exclude_cli_list:
     #add nat commands
+    from . import nat
     cli.add_command(nat.nat)
 
 cli.add_command(platform.platform)
@@ -246,6 +246,10 @@ if 'INCLUDE_RADIUS: n' not in exclude_cli_list:
     #add radius commands
     from . import radius
     cli.add_command(radius.radius)
+
+if os.path.isfile("/etc/sonic/build_metadata.yaml"):
+    from . import metadata
+    cli.add_command(metadata.metadata)
 
 # Add greabox commands only if GEARBOX is configured
 if is_gearbox_configured():
