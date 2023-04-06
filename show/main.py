@@ -247,6 +247,10 @@ if 'INCLUDE_RADIUS: n' not in exclude_cli_list:
     from . import radius
     cli.add_command(radius.radius)
 
+if os.path.isfile("/etc/sonic/build_metadata.yaml"):
+    from . import metadata
+    cli.add_command(metadata.metadata)
+
 # Add greabox commands only if GEARBOX is configured
 if is_gearbox_configured():
     cli.add_command(gearbox.gearbox)
