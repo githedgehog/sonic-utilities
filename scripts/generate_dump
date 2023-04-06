@@ -838,7 +838,7 @@ save_platform_info() {
 
 save_build_metadata() {
     trap 'handle_error $? $LINENO' ERR
-    METADATA_PATH="/etc/sonic/build_metadata.yml"
+    METADATA_PATH="/etc/sonic/build_metadata.yaml"
     if [[ -f "$METADATA_PATH" ]]; then
         save_file $METADATA_PATH build_metadata true
     else
