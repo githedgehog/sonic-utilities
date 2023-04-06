@@ -836,6 +836,16 @@ save_platform_info() {
     fi
 }
 
+save_build_metadata() {
+    trap 'handle_error $? $LINENO' ERR
+    METADATA_PATH="/etc/sonic/build_metadata.yaml"
+    if [[ -f "$METADATA_PATH" ]]; then
+        save_file $METADATA_PATH build_metadata true
+    else
+        echo "There is no \"$METADATA_PATH\" file"
+    fi
+}
+
 ###############################################################################
 # Runs a comamnd and saves its output to the incrementally built tar.
 # Globals:
@@ -1489,6 +1499,7 @@ main() {
     save_cmd "systemd-analyze plot" "systemd.analyze.plot.svg"
 
     save_platform_info
+    save_build_metadata
 
     save_cmd "show vlan brief" "vlan.summary"
     save_cmd "show version" "version"
