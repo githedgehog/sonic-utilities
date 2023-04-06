@@ -247,7 +247,7 @@ if 'INCLUDE_RADIUS: n' not in exclude_cli_list:
     from . import radius
     cli.add_command(radius.radius)
 
-if os.path.isfile("/etc/sonic/build_metadata.yml"):
+if os.path.isfile("/etc/sonic/build_metadata.yaml"):
     from . import metadata
     cli.add_command(metadata.metadata)
 

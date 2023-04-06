@@ -6,7 +6,7 @@ import datetime
 
 # There are no file existance cheks bcs this CLI group will not
 # be loaded without metadata file (there is check in main.py)
-METADATA_PATH = "/etc/sonic/build_metadata.yml"
+METADATA_PATH = "/etc/sonic/build_metadata.yaml"
 
 
 #
